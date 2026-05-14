@@ -27,8 +27,7 @@ Robustness to detector quality (2× / 4× downsampled VinVL features) is preserv
 
 ```
 PAWS/
-├── train_sttran.py, train_dsgdetr.py        # training entry-points (STTran / DSG-DETR)
-├── test_sttran.py,  test_dsgdetr.py         # evaluation entry-points
+├── README.md, requirements.txt
 ├── configs/
 │   ├── detector/        VinVL detector config
 │   ├── pla_stage_1/     teacher (stage-1) configs
@@ -48,12 +47,22 @@ PAWS/
 ├── dataloader/action_genome.py
 ├── scripts/
 │   ├── install.sh                           # build all CUDA / Cython extensions
+│   ├── train_sttran.py,  train_dsgdetr.py   # training entry-points (STTran / DSG-DETR)
+│   ├── test_sttran.py,   test_dsgdetr.py    # evaluation entry-points
+│   ├── test_sttran_full.py                  # full-set eval wrapper
 │   ├── extract_vinvl_lowres_dets_feats.py   # detection cache extraction (any downsample factor)
-│   └── ...                                  # detection / pair-level analysis utilities
+│   ├── conf_distribution.py                 # VinVL conf distribution stats
+│   ├── conf_of_gt_matched_dets.py           # GT-matched conf analysis (occlusion proxy)
+│   ├── vinvl_lowres_smoketest.py            # lowres detection sanity check
+│   ├── vinvl_lowres_feature_compare.py      # native vs lowres RoI feat similarity
+│   ├── vis_oursbase_top10_h46lq.py          # top-10 triplet visualization
+│   └── visualize_lowconf_gtmatched_objects.py  # low-conf bbox visualization
 ├── third_party/
 │   ├── scene_graph_benchmark/   maskrcnn_benchmark + AttrRCNN (PyTorch 2.x patched)
 │   └── fasterRCNN/lib/          RoIAlign / RoIPool / NMS (PyTorch 2.x patched)
 ```
+
+> All entry-point scripts (`train_*.py`, `test_*.py`) live under `scripts/` and are designed to be run **from the repo root** so they can find `configs/`, `lib/`, and `data/` via relative paths.
 
 ## Environment
 
@@ -168,8 +177,8 @@ Pretrained weight downloads: [link TBD].
 Trains a per-frame object-aware SGG model that emits soft predicate logits used to refine pseudo-labels.
 
 ```bash
-python train_sttran.py  --cfg configs/pla_stage_1/sttran_ours.yml
-python train_dsgdetr.py --cfg configs/pla_stage_1/dsgdetr_ours.yml
+python scripts/train_sttran.py  --cfg configs/pla_stage_1/sttran_ours.yml
+python scripts/train_dsgdetr.py --cfg configs/pla_stage_1/dsgdetr_ours.yml
 ```
 
 ### Stage 2 (PAWS student, with PA + PAM)
@@ -177,8 +186,8 @@ python train_dsgdetr.py --cfg configs/pla_stage_1/dsgdetr_ours.yml
 Pair-affinity head and PAM-aware spatio-temporal transformer are turned on.
 
 ```bash
-python train_sttran.py  --cfg configs/pla_stage_2/ours.yml
-python train_dsgdetr.py --cfg configs/pla_stage_2/ours.yml
+python scripts/train_sttran.py  --cfg configs/pla_stage_2/ours.yml
+python scripts/train_dsgdetr.py --cfg configs/pla_stage_2/ours.yml
 ```
 
 ### Key Stage-2 knobs (`configs/pla_stage_2/ours.yml`)
@@ -198,8 +207,8 @@ python train_dsgdetr.py --cfg configs/pla_stage_2/ours.yml
 ## Evaluation
 
 ```bash
-python test_sttran.py  --cfg configs/pla_stage_2/ours.yml          # STTran with PA / PAM
-python test_dsgdetr.py --cfg configs/pla_stage_2/ours.yml          # DSG-DETR with PA / PAM
+python scripts/test_sttran.py  --cfg configs/pla_stage_2/ours.yml          # STTran with PA / PAM
+python scripts/test_dsgdetr.py --cfg configs/pla_stage_2/ours.yml          # DSG-DETR with PA / PAM
 ```
 
 The evaluator reports R@10 / R@20 / R@50 / R@100 under with / semi / no constraint. If `pa_metric: True`, a second block also reports PA-gated re-ranked recalls.
@@ -207,8 +216,8 @@ The evaluator reports R@10 / R@20 / R@50 / R@100 under with / semi / no constrai
 For evaluation at lowered detector resolution, point to the matching detection cache and set `lowres_factor`:
 
 ```bash
-python test_sttran.py --cfg configs/eval_lowres/lowres2x_ours_full.yml
-python test_sttran.py --cfg configs/eval_lowres/lowres4x_ours_full.yml
+python scripts/test_sttran.py --cfg configs/eval_lowres/lowres2x_ours_full.yml
+python scripts/test_sttran.py --cfg configs/eval_lowres/lowres4x_ours_full.yml
 ```
 
 ## How the patches work (PyTorch 2.x)
