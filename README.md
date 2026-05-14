@@ -73,10 +73,8 @@ conda activate paws
 # PyTorch — match your local CUDA version
 pip install torch==2.1.0 torchvision==0.16.0 --index-url https://download.pytorch.org/whl/cu118
 
-# Common deps
+# Common deps (numpy<2 is pinned to match PyTorch 2.1's NumPy 1.x ABI)
 pip install -r requirements.txt
-pip install easydict h5py dill cityscapesscripts cython ninja \
-            opencv-python tqdm pyyaml graphviz matplotlib
 
 # Build CUDA / Cython extensions in this env
 bash scripts/install.sh    # 4 extensions: maskrcnn_benchmark, fasterRCNN, draw_rectangles, box_intersections
