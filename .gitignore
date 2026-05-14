@@ -3,6 +3,7 @@ data/
 data-*/
 datasets/
 models/
+models
 runs/
 output/
 logs/
