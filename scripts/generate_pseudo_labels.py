@@ -7,7 +7,7 @@ Model-free pseudo label generation with:
 
 import os
 import sys
-sys.path.insert(0, '/SSD1/minseok/WS-DSGG/TRKT/PLA')
+# Run from repo root: PYTHONPATH should already include it
 
 import copy
 import pickle
