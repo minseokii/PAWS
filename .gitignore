@@ -1,0 +1,59 @@
+# ===== Data / weights / logs (not for git) =====
+data/
+data-*/
+datasets/
+models/
+runs/
+output/
+logs/
+wandb/
+visualize/
+build/
+*.egg-info/
+
+# ===== VidHOI sub-project (kept locally, not for this repo) =====
+vidhoi/
+
+# ===== Compiled binaries (rebuild per env) =====
+*.so
+*.pyd
+*.o
+*.obj
+
+# Cython generated C files (regen on build)
+lib/fpn/box_intersections_cpu/bbox.c
+lib/draw_rectangles/draw_rectangles.c
+
+# ===== Python caches =====
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# ===== Pretrained features / pseudo-labels (download separately) =====
+lib/CSA/glove.6B*
+lib/CSA/glove.6B/
+annotations/weak/gt_*.pkl
+annotations/weak/pla_*.pkl
+*.pkl
+
+# ===== Editor / OS =====
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# ===== Misc rebuttal / scratch =====
+rebuttal.md
+*_result.pkl
+scripts/_logs/
+scripts/_gdino_vis*/
+scripts/_run_gpu*.sh
+
+# ===== Don't ignore important files in subdirs =====
+!.gitkeep

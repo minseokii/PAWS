@@ -1,0 +1,43 @@
+gpu_id: 1
+multi_gpus: False
+num_workers: 4
+mode: 'sgdet'
+transformer_mode: 'img'
+
+optimizer: 'adamw'
+lr: 0.00001
+nepoch: 5
+stop_epoch: 3
+enc_layer: 1
+dec_layer: 3
+bce_loss: True
+is_wks: True
+feat_dim: 2048
+pseudo_way: 0
+remove_one_frame_video: False
+union_box_feature: True
+start_eval_epoch: 0
+
+# GDINO match option
+match : 'gdinomatch'
+reliability_threshold: 0.6
+match_threshold: 0.2
+det_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_gdino_12_5_ag_class_v2/'
+feat_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_det_ag_class/'
+obj_dim : 2048
+
+# Pair Affinity Learning and Scoring
+unmatched_sampling : True
+pa_loss : ['balanced_bce']
+pam_loss : ['triplet']
+pa_weight : 1.0
+pa_metric : True
+pam_weight : 0.1
+
+# Base directory for saving models
+save_path: 'models/pla/'
+model_path: ''
+data_path: '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/'
+datasize: 'large'
+ckpt: None
+ws_object_bbox_path: '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/annotations/weak/gt_annotation_thres02_keep1.pkl'

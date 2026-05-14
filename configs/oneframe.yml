@@ -1,0 +1,31 @@
+gpu_id: 1
+multi_gpus: False
+num_workers: 4
+mode: 'sgdet'
+transformer_mode: 'img'
+
+optimizer: 'adamw'
+lr: 0.00001
+nepoch: 5
+enc_layer: 1
+dec_layer: 3
+bce_loss: True
+is_wks: True
+feat_dim: 2048
+pseudo_way: 0
+remove_one_frame_video: False
+union_box_feature: True
+match : 'ori'
+start_eval_epoch: 0
+# unmatched object sampling config
+# relativeness loss config
+pa_loss : []
+pa_metric : False
+
+save_path: 'models/'
+model_path: 'models/0120_1315_img_ori_samprandom/best_model.tar'
+data_path: '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/'
+datasize: 'large' 
+ckpt: None
+ws_object_bbox_path: '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/annotations/weak/gt_annotation_thres02_keep1.pkl'
+
