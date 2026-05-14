@@ -49,14 +49,7 @@ PAWS/
 │   ├── install.sh                           # build all CUDA / Cython extensions
 │   ├── train_sttran.py,  train_dsgdetr.py   # training entry-points (STTran / DSG-DETR)
 │   ├── test_sttran.py,   test_dsgdetr.py    # evaluation entry-points
-│   ├── test_sttran_full.py                  # full-set eval wrapper
-│   ├── extract_vinvl_lowres_dets_feats.py   # detection cache extraction (any downsample factor)
-│   ├── conf_distribution.py                 # VinVL conf distribution stats
-│   ├── conf_of_gt_matched_dets.py           # GT-matched conf analysis (occlusion proxy)
-│   ├── vinvl_lowres_smoketest.py            # lowres detection sanity check
-│   ├── vinvl_lowres_feature_compare.py      # native vs lowres RoI feat similarity
-│   ├── vis_oursbase_top10_h46lq.py          # top-10 triplet visualization
-│   └── visualize_lowconf_gtmatched_objects.py  # low-conf bbox visualization
+│   └── test_sttran_full.py                  # full-set eval wrapper (R@K + mAP)
 ├── third_party/
 │   ├── scene_graph_benchmark/   maskrcnn_benchmark + AttrRCNN (PyTorch 2.x patched)
 │   └── fasterRCNN/lib/          RoIAlign / RoIPool / NMS (PyTorch 2.x patched)
