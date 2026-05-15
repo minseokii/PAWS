@@ -21,7 +21,7 @@ start_eval_epoch: 0
 match : 'ori'
 reliability_threshold: 0.1
 match_threshold: 0.2
-det_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_gdino_12_5_ag_class_v2/'
+det_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_gdino_ag_class/'
 feat_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/AG_detection_results_ag_class_v2/'
 obj_dim : 2048
 

@@ -13,9 +13,9 @@ Usage:
 
     # Convert GDINO detections (needs separate feat source)
     python convert_to_ag_class.py \
-        --src_det /path/to/PLA_gdino_12_5 \
+        --src_det /path/to/PLA_gdino \
         --src_feat /path/to/AG_detection_results \
-        --dst /path/to/PLA_gdino_12_5_ag_class
+        --dst /path/to/PLA_gdino_ag_class
 """
 
 import os

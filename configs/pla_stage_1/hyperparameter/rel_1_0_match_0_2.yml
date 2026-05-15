@@ -22,7 +22,7 @@ start_eval_epoch: 0
 match : 'gdinomatch'
 reliability_threshold: 1.0
 match_threshold: 0.2
-det_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_gdino_12_5_ag_class_v2/'
+det_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_gdino_ag_class/'
 feat_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_det_ag_class/'
 obj_dim : 2048
 

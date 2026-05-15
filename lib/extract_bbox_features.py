@@ -241,7 +241,7 @@ def extract_feature_given_bbox_video(model, transforms, cv2_img, bboxes):
 def prepare_func():
     # 写死args
     config_file = "/SSD1/minseok/WS-DSGG/TRKT/PLA/lib/sgg_configs/vgattr/vinvl_x152c4.yaml"
-    opts = ["MODEL.WEIGHT", "/SSD1/minseok/WS-DSGG/TRKT/PLA/models/vinvl/vinvl_vg_x152c4.pth",
+    opts = ["MODEL.WEIGHT", "models/vinvl/vinvl_vg_x152c4.pth",
             "MODEL.ROI_HEADS.NMS_FILTER", "1",
             "MODEL.ROI_HEADS.SCORE_THRESH", "0.2",
             "DATA_DIR", "datasets",
