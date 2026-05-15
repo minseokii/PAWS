@@ -42,7 +42,6 @@ __C.label_fusion_strategy = 0       # 0：fixed；1：adapted
 # match method options
 __C.det_path = '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/AG_detection_results_refine/'
 __C.feat_path = '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/AG_detection_results_refine/'
-__C.lowres_factor = 1     # 1 = native; >1 = downsample images & union bbox by this factor in convert_data
 __C.match = 'ori'     # ['ori, 'gtmatch', 'gdinomatch', 'exact']
 __C.start_eval_epoch = 0
 __C.reliability_threshold = 0.1

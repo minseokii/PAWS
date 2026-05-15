@@ -847,14 +847,6 @@ def convert_data(is_train, base_feat_list, video_people_det, video_people_feat, 
                                         boxes[:, 1:3][pair_idx[:, 1]]),
                                 torch.max(boxes[:, 3:5][pair_idx[:, 0]],
                                         boxes[:, 3:5][pair_idx[:, 1]])), 1)
-        # Lowres consistency: if conf.lowres_factor > 1, downsample images and bboxes
-        # so union_feat is extracted at the same resolution as the cached per-object feat.
-        lowres_factor = getattr(conf, 'lowres_factor', 1) if conf is not None else 1
-        if lowres_factor and lowres_factor > 1:
-            cv2_imgs = [cv2.resize(im, (max(8, im.shape[1] // lowres_factor), max(8, im.shape[0] // lowres_factor)),
-                                   interpolation=cv2.INTER_AREA) for im in cv2_imgs]
-            union_boxes = union_boxes.clone()
-            union_boxes[:, 1:] = union_boxes[:, 1:] / float(lowres_factor)
         union_boxes_list = [union_boxes[union_boxes[:, 0] == i] for i in range(frame_num)]
         union_feat_list = []
 
