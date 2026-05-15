@@ -197,10 +197,10 @@ The evaluator reports R@10 / R@20 / R@50 / R@100 under with / semi / no constrai
 ## Citation
 
 ```bibtex
-@inproceedings{paws,
-  title={PAWS: Pair-Affinity Weakly-Supervised Scene Graph Generation},
-  author={...},
-  booktitle={...},
+@article{kang2026revisiting,
+  title={Revisiting Weakly-Supervised Video Scene Graph Generation via Pair Affinity Learning},
+  author={Kang, Minseok and Lee, Minhyeok and Kim, Minjung and Lee, Jungho and Kim, Donghyeong and Woo, Sungmin and Jeon, Inseok and Lee, Sangyoun},
+  journal={arXiv preprint arXiv:2603.21559},
   year={2026}
 }
 ```
