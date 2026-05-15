@@ -66,7 +66,17 @@ Download `vinvl_vg_x152c4.pth` from the [VinVL model zoo](https://github.com/mic
 
 #### 3. VinVL detection cache → `data/action-genome/PLA_det_ag_class/`
 
-Per-frame `dets.npy` + `feat.npy` produced by running VinVL over Action Genome frames. **Download** the pre-extracted cache (~50 GB): [link TBD]. Or follow [PLA](https://github.com/zjucsq/PLA)'s data-prep instructions to extract it yourself.
+Per-frame `dets.npy` + `feat.npy` from running VinVL on AG frames, with the class field already remapped from VinVL's ~1600 classes into Action Genome's 37 classes. **Download** the pre-extracted cache (~50 GB): [link TBD]. To produce it yourself:
+
+```bash
+# (a) run VinVL → AG_detection_results/  (VinVL class space)
+#     follow PLA's data-prep guide: https://github.com/zjucsq/PLA
+
+# (b) remap VinVL classes → AG class space (no --src_feat needed; uses src_det)
+python scripts/convert_to_ag_class.py \
+    --src_det data/action-genome/AG_detection_results \
+    --dst     data/action-genome/PLA_det_ag_class
+```
 
 #### 4. Grounding-DINO weight → `models/groundingdino/groundingdino_swint_ogc.pth`
 
@@ -79,14 +89,23 @@ cd third_party/GroundingDINO && pip install -e . --no-build-isolation && cd -
 
 #### 5. RAM-aware detection cache → `data/action-genome/PLA_gdino_ag_class/`
 
-The RAM step augments each VinVL detection with `reliability` (cls-token attention) and `match_score` (subject- / object-token attention) from Grounding-DINO. **Download** the pre-built cache: [link TBD]. Or generate it yourself with the RAM extraction pipeline (script TBD) followed by:
+The RAM step augments each VinVL detection with two extra fields — `reliability` (cls-token attention) and `match_score` (subject- / object-token attention) — by running Grounding-DINO over the same AG frames and matching its attention back to VinVL boxes. **Download** the pre-built cache: [link TBD]. To produce it yourself:
 
 ```bash
+# (a) RAM extraction (script TBD)
+#     reads:   AG frames + AG_detection_results/  (VinVL classes, no RAM yet)
+#     writes:  PLA_gdino/                          (VinVL classes + reliability + match_score)
+
+# (b) remap VinVL → AG class (RAM scores are preserved automatically).
+#     --src_feat points to the AG-class feature cache because PLA_gdino/
+#     only has dets, not feats.
 python scripts/convert_to_ag_class.py \
     --src_det  data/action-genome/PLA_gdino \
     --src_feat data/action-genome/PLA_det_ag_class \
     --dst      data/action-genome/PLA_gdino_ag_class
 ```
+
+`convert_to_ag_class.py` itself is purely a class-space mapper (VinVL→AG); the actual RAM scoring is the upstream step (a).
 
 #### 6. Weak-annotation pickles → `data/action-genome/annotations/weak/`
 
