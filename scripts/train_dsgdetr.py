@@ -16,14 +16,6 @@ import time as time_module
 timestamp_dir = time_module.strftime("%m%d_%H%M")
 # Create descriptive directory name
 run_name = f"{timestamp_dir}_dsgdetr_{conf.match}"
-pa_loss_cfg = getattr(conf, 'pa_loss', None)
-pa_modes = pa_loss_cfg if isinstance(pa_loss_cfg, list) else ([pa_loss_cfg] if pa_loss_cfg and pa_loss_cfg != 'None' else [])
-pam_loss_cfg = getattr(conf, 'pam_loss', None)
-pam_modes = pam_loss_cfg if isinstance(pam_loss_cfg, list) else ([pam_loss_cfg] if pam_loss_cfg and pam_loss_cfg != 'None' else [])
-if pa_modes:
-    run_name += f"_pa{'_'.join(pa_modes)}"
-if pam_modes:
-    run_name += f"_pam{'_'.join(pam_modes)}"
 if getattr(conf, 'unmatched_sampling', False):
     run_name += "_unmatched"
 
@@ -58,10 +50,7 @@ torch.set_num_threads(4)
 from tensorboardX import SummaryWriter
 import wandb
 
-from lib.loss import (PairAffinityMemoryBank, infonce_loss, pair_mask_triplet_loss,
-                      pair_mask_triplet_loss_with_mask, pair_mask_adaptive_margin_loss,
-                      soft_margin_ranking_loss,
-                      pair_mask_soft_margin_loss, distance_weighted_bce_loss)
+from lib.loss import (PairAffinityMemoryBank, pair_mask_adaptive_margin_loss)
 
 from dataloader.action_genome import AG, cuda_collate_fn
 from lib.object_detector import detector
@@ -553,131 +542,37 @@ for epoch in range(start_epoch, conf.nepoch):
                             losses["contact_relation_loss_BCE"] = contact_loss_all.sum() * 0.0
 
                 # =============================================
-                # PA Loss: pair affinity logit-level losses (list-based)
+                # PA Loss: balanced distance-weighted BCE (single fixed loss)
                 # =============================================
-                pa_loss_cfg = getattr(conf, 'pa_loss', None)
-                if pa_loss_cfg is None or pa_loss_cfg == 'None':
-                    pa_loss_list = []
-                elif isinstance(pa_loss_cfg, str):
-                    pa_loss_list = [pa_loss_cfg]
-                else:
-                    pa_loss_list = list(pa_loss_cfg)
-
-                if len(pa_loss_list) > 0 and negative_mask.sum() > 0 and use_for_loss.sum() > 0 and "pair_affinity" in pred:
+                if (negative_mask.sum() > 0 and use_for_loss.sum() > 0
+                        and "pair_affinity" in pred
+                        and conf.teacher_mode_cfg is not None
+                        and "pair_affinity" in t_pred):
                     logits = pred["pair_affinity"].squeeze()
+                    bce_weight  = getattr(conf, 'pa_weight', 1.0)
+                    alpha_power = getattr(conf, 'pa_alpha_power', 3.0)
 
-                    for pa_mode in pa_loss_list:
+                    num_frames_pa   = int(pred['im_idx'].max().item()) + 1
+                    center_frame_pa = num_frames_pa // 2
+                    max_distance_pa = num_frames_pa / 2.0
+                    distances_pa    = torch.abs(pred['im_idx'].float() - center_frame_pa)
+                    alpha_pa        = (1.0 - distances_pa / max_distance_pa).clamp(min=0.0) ** alpha_power
+                    t_sigmoid_pa    = torch.sigmoid(t_pred["pair_affinity"].squeeze())
+                    pseudo_gt       = use_for_loss.float()
+                    target_pa       = alpha_pa * pseudo_gt + (1.0 - alpha_pa) * t_sigmoid_pa
 
-                        if pa_mode == 'bce':
-                            bce_weight = getattr(conf, 'pa_weight', 1.0)
-                            bce_target = torch.zeros_like(logits)
-                            bce_target[use_for_loss] = 1.0
-                            losses["pa_bce_loss"] = bce_weight * F.binary_cross_entropy_with_logits(logits, bce_target)
-
-                        elif pa_mode == 'balanced_bce':
-                            bce_weight = getattr(conf, 'pa_weight', 1.0)
-                            pos_target_val = getattr(conf, 'pa_pos_target', 1.0)
-                            neg_target_val = getattr(conf, 'pa_neg_target', 0.0)
-                            if use_for_loss.sum() > 0 and negative_mask.sum() > 0:
-                                pos_bce = F.binary_cross_entropy_with_logits(logits[use_for_loss], torch.full((use_for_loss.sum(),), pos_target_val, device=logits.device))
-                                neg_bce = F.binary_cross_entropy_with_logits(logits[negative_mask], torch.full((negative_mask.sum(),), neg_target_val, device=logits.device))
-                                losses["pa_balanced_bce_loss"] = bce_weight * (pos_bce + neg_bce) / 2
-
-                        elif pa_mode in ('dist_bce', 'balanced_dist_bce') and conf.teacher_mode_cfg is not None and "pair_affinity" in t_pred:
-                            alpha_power = getattr(conf, 'pa_alpha_power', 3.0)
-                            bce_weight = getattr(conf, 'pa_weight', 1.0)
-
-                            # Compute distance-weighted target for all pairs
-                            num_frames_pa = int(pred['im_idx'].max().item()) + 1
-                            center_frame_pa = num_frames_pa // 2
-                            max_distance_pa = num_frames_pa / 2.0
-                            distances_pa = torch.abs(pred['im_idx'].float() - center_frame_pa)
-                            alpha_pa = (1.0 - distances_pa / max_distance_pa).clamp(min=0.0) ** alpha_power
-                            t_sigmoid_pa = torch.sigmoid(t_pred["pair_affinity"].squeeze())
-                            pseudo_gt = use_for_loss.float()
-                            target_pa = alpha_pa * pseudo_gt + (1.0 - alpha_pa) * t_sigmoid_pa
-
-                            if pa_mode == 'dist_bce':
-                                # Unbalanced: single BCE over all logits
-                                losses["pa_dist_bce_loss"] = bce_weight * F.binary_cross_entropy_with_logits(logits, target_pa)
-                            else:
-                                # Balanced: split by target >= 0.5
-                                pos_target_mask = target_pa >= 0.5
-                                neg_target_mask = target_pa < 0.5
-                                if pos_target_mask.sum() > 0 and neg_target_mask.sum() > 0:
-                                    pos_bce = F.binary_cross_entropy_with_logits(logits[pos_target_mask], target_pa[pos_target_mask])
-                                    neg_bce = F.binary_cross_entropy_with_logits(logits[neg_target_mask], target_pa[neg_target_mask])
-                                    losses["pa_balanced_dist_bce_loss"] = bce_weight * (pos_bce + neg_bce) / 2
-
-                        elif pa_mode == 'margin_ranking':
-                            neg_logits = logits[negative_mask]
-                            gt_margin = getattr(conf, 'pa_margin', 1.0)
-                            propagate_margin = getattr(conf, 'propagate_margin', 0.3)
-
-                            pos_gt_mask = use_for_loss & gt_rel
-                            pos_prop_mask = use_for_loss & (~gt_rel)
-                            pos_gt = logits[pos_gt_mask]
-                            pos_prop = logits[pos_prop_mask]
-
-                            loss_total = torch.tensor(0.0, device=logits.device)
-                            num_pairs = 0
-
-                            if len(pos_gt) > 0:
-                                pos_gt_exp = pos_gt.unsqueeze(1)
-                                neg_exp = neg_logits.unsqueeze(0)
-                                loss_gt = F.margin_ranking_loss(
-                                    pos_gt_exp.expand(-1, neg_exp.size(1)).reshape(-1),
-                                    neg_exp.expand(pos_gt_exp.size(0), -1).reshape(-1),
-                                    torch.ones(pos_gt_exp.size(0) * neg_exp.size(1), device=logits.device),
-                                    margin=gt_margin
-                                )
-                                loss_total += loss_gt * len(pos_gt) * len(neg_logits)
-                                num_pairs += len(pos_gt) * len(neg_logits)
-
-                            if len(pos_prop) > 0:
-                                pos_prop_exp = pos_prop.unsqueeze(1)
-                                neg_exp = neg_logits.unsqueeze(0)
-                                loss_prop = F.margin_ranking_loss(
-                                    pos_prop_exp.expand(-1, neg_exp.size(1)).reshape(-1),
-                                    neg_exp.expand(pos_prop_exp.size(0), -1).reshape(-1),
-                                    torch.ones(pos_prop_exp.size(0) * neg_exp.size(1), device=logits.device),
-                                    margin=propagate_margin
-                                )
-                                loss_total += loss_prop * len(pos_prop) * len(neg_logits)
-                                num_pairs += len(pos_prop) * len(neg_logits)
-
-                            losses["pa_margin_ranking_loss"] = loss_total / num_pairs if num_pairs > 0 else loss_total
-
-                        elif pa_mode == 'soft_margin_ranking':
-                            neg_logits = logits[negative_mask]
-                            pos_logits = logits[use_for_loss]
-                            losses["pa_soft_margin_ranking_loss"] = soft_margin_ranking_loss(pos_logits, neg_logits)
-
-                        elif pa_mode == 'logit_bce' and conf.teacher_mode_cfg is not None and "pair_affinity" in t_pred:
-                            t_logits = t_pred["pair_affinity"].squeeze()
-                            t_sigmoid = torch.sigmoid(t_logits)
-                            bce_weight = getattr(conf, 'pa_logit_bce_weight', 1.0)
-
-                            pos_target = (1.0 + t_sigmoid[use_for_loss]) / 2
-                            pos_bce = F.binary_cross_entropy_with_logits(logits[use_for_loss], pos_target)
-
-                            neg_target = t_sigmoid[negative_mask] / 2
-                            neg_bce = F.binary_cross_entropy_with_logits(logits[negative_mask], neg_target)
-
-                            losses["pa_logit_bce_loss"] = bce_weight * (pos_bce + neg_bce) / 2
+                    pos_target_mask = target_pa >= 0.5
+                    neg_target_mask = target_pa < 0.5
+                    if pos_target_mask.sum() > 0 and neg_target_mask.sum() > 0:
+                        pos_bce = F.binary_cross_entropy_with_logits(logits[pos_target_mask], target_pa[pos_target_mask])
+                        neg_bce = F.binary_cross_entropy_with_logits(logits[neg_target_mask], target_pa[neg_target_mask])
+                        losses["pa_loss"] = bce_weight * (pos_bce + neg_bce) / 2
 
                 # =============================================
-                # PAM Loss: pair affinity matrix (emb@emb^T → sigmoid) losses (list-based)
+                # PAM Loss: adaptive-margin triplet over pair_emb @ pair_emb^T
+                # (single fixed loss)
                 # =============================================
-                pam_loss_cfg = getattr(conf, 'pam_loss', None)
-                if pam_loss_cfg is None or pam_loss_cfg == 'None':
-                    pam_loss_list = []
-                elif isinstance(pam_loss_cfg, str):
-                    pam_loss_list = [pam_loss_cfg]
-                else:
-                    pam_loss_list = list(pam_loss_cfg)
-
-                if len(pam_loss_list) > 0 and negative_mask.sum() > 0 and use_for_loss.sum() > 0 and "all_pair_mask_logits" in pred:
+                if negative_mask.sum() > 0 and use_for_loss.sum() > 0 and "all_pair_mask_logits" in pred:
                     pam_weight = getattr(conf, 'pam_weight', 0.3)
                     pam_margin = getattr(conf, 'pam_margin', 1.0)
                     propagate_margin = getattr(conf, 'propagate_margin', 0.3)
@@ -732,42 +627,11 @@ for epoch in range(start_epoch, conf.nepoch):
                         mixed_outer = ~gt_outer & ~prop_outer & valid_mask_2d
                         pos_mask_2d = (positive_mask.unsqueeze(2) > 0) & (positive_mask.unsqueeze(1) > 0)
 
-                        for pam_mode in pam_loss_list:
-
-                            if pam_mode == 'adaptive':
-                                losses["pam_adaptive_loss"] = pam_weight * pair_mask_adaptive_margin_loss(
-                                    pair_mask_logit, pos_mask_2d & valid_mask_2d,
-                                    confidence=target_logit_padded,
-                                    base_margin=pam_margin, valid_mask=valid_mask_2d
-                                )
-
-                            elif pam_mode == 'soft':
-                                losses["pam_soft_loss"] = pam_weight * pair_mask_soft_margin_loss(
-                                    pair_mask_logit, positive_mask
-                                )
-
-                            elif pam_mode == 'triplet':
-                                loss_gt = pair_mask_triplet_loss_with_mask(
-                                    pair_mask_logit, pos_mask_2d & gt_outer, margin=pam_margin, valid_mask=valid_mask_2d
-                                )
-                                loss_prop = pair_mask_triplet_loss_with_mask(
-                                    pair_mask_logit, pos_mask_2d & prop_outer, margin=propagate_margin, valid_mask=valid_mask_2d
-                                )
-                                loss_mixed = pair_mask_triplet_loss_with_mask(
-                                    pair_mask_logit, pos_mask_2d & mixed_outer, margin=mixed_margin, valid_mask=valid_mask_2d
-                                )
-
-                                gt_count = (pos_mask_2d & gt_outer).sum().item()
-                                prop_count = (pos_mask_2d & prop_outer).sum().item()
-                                mixed_count = (pos_mask_2d & mixed_outer).sum().item()
-                                total_count = gt_count + prop_count + mixed_count
-
-                                if total_count > 0:
-                                    losses["pam_triplet_loss"] = pam_weight * (
-                                        (loss_gt * gt_count + loss_prop * prop_count + loss_mixed * mixed_count) / total_count
-                                    )
-                                else:
-                                    losses["pam_triplet_loss"] = torch.tensor(0.0, device=pred["pair_affinity"].device)
+                        losses["pam_loss"] = pam_weight * pair_mask_adaptive_margin_loss(
+                            pair_mask_logit, pos_mask_2d & valid_mask_2d,
+                            confidence=target_logit_padded,
+                            base_margin=pam_margin, valid_mask=valid_mask_2d,
+                        )
 
                 optimizer.zero_grad()
                 loss = sum(losses.values())

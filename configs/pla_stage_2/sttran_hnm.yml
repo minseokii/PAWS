@@ -34,14 +34,11 @@ feat_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_det_ag_class/'
 # Pair Affinity Learning and Scoring
 # hnm_dist: distance-weighted soft target with hard negative mining
 unmatched_sampling : True
-pa_loss : ['hnm_dist']
-pam_loss : ['adaptive']
 pa_weight : 1.0
 pa_alpha_power : 3.0
 pam_weight : 0.1
 pam_margin : 1.0
 pa_metric : True
-hnm_neg_ratio : 3
 
 
 save_path: 'models/stage2/'

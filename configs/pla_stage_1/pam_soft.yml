@@ -27,8 +27,6 @@ obj_dim : 2048
 
 # Pair Affinity Learning and Scoring
 unmatched_sampling : True
-pa_loss : ['balanced_bce']
-pam_loss : ['soft']
 pa_weight : 1.0
 pa_metric : True
 pam_weight : 0.1

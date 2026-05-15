@@ -38,8 +38,6 @@ feat_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/AG_detection_results_
 # target = alpha * pseudo_gt + (1 - alpha) * sigmoid(teacher_logit)
 unmatched_sampling : False
 pam : False
-pa_loss : []
-pam_loss : []
 pa_weight : 1.0
 pa_alpha_power : 3.0
 pam_weight : 0.1

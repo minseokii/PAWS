@@ -28,8 +28,6 @@ obj_dim : 2048
 # Pair Affinity Learning and Scoring
 # Balanced BCE only (no margin ranking, no emb)
 unmatched_sampling : False
-pa_loss : ['bce']
-pam_loss : []
 pa_weight : 0.5
 pa_metric : True
 

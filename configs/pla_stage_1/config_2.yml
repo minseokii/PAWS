@@ -28,8 +28,6 @@ obj_dim : 2048
 # Pair Affinity Learning and Scoring
 # Margin ranking loss + Balanced BCE auxiliary
 unmatched_sampling : True
-pa_loss : ['margin_ranking']
-pam_loss : ['triplet']
 pa_weight : 0.05
 pa_metric : True
 

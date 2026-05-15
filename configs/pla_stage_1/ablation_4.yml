@@ -29,8 +29,6 @@ obj_dim : 2048
 # Balanced BCE only (no margin ranking)
 unmatched_sampling : False
 pam : False
-pa_loss : []
-pam_loss : []
 pa_weight : 1.0
 pa_metric : False
 pam_weight : 0.1

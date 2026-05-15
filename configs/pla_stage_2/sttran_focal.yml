@@ -34,14 +34,11 @@ feat_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_det_ag_class/'
 # Pair Affinity Learning and Scoring
 # focal_dist: distance-weighted soft target with focal modulation on prediction error
 unmatched_sampling : True
-pa_loss : ['focal_dist']
-pam_loss : ['adaptive']
 pa_weight : 1.0
 pa_alpha_power : 3.0
 pam_weight : 0.1
 pam_margin : 1.0
 pa_metric : True
-focal_gamma : 2.0
 
 
 save_path: 'models/stage2/'

@@ -19,7 +19,6 @@ match : 'ori'
 start_eval_epoch: 0
 # unmatched object sampling config
 # relativeness loss config
-pa_loss : []
 pa_metric : False
 
 save_path: 'models/'

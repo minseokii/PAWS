@@ -38,8 +38,6 @@ feat_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_det_ag_class/'
 # target = alpha * pseudo_gt + (1 - alpha) * sigmoid(teacher_logit)
 unmatched_sampling : True
 pam : True
-pa_loss : ['balanced_dist_bce']
-pam_loss : ['adaptive']
 pa_weight : 1.0
 pa_alpha_power : 3.0
 pam_weight : 0.1

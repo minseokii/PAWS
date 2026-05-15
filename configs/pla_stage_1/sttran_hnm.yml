@@ -27,12 +27,9 @@ obj_dim : 2048
 
 # Pair Affinity Learning and Scoring
 unmatched_sampling : True
-pa_loss : ['hnm']
-pam_loss : ['triplet']
 pa_weight : 1.0
 pa_metric : True
 pam_weight : 0.1
-hnm_neg_ratio : 3
 
 # Base directory for saving models (timestamp subdirectory auto-generated)
 save_path: 'models/pla/'

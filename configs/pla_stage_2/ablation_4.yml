@@ -36,8 +36,6 @@ feat_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_det_ag_class/'
 # alpha = (1 - distance/max_distance)^power
 # target = alpha * pseudo_gt + (1 - alpha) * sigmoid(teacher_logit)
 unmatched_sampling : False
-pa_loss : []
-pam_loss : []
 pa_weight : 1.0
 pa_alpha_power : 3.0
 pam_weight : 0.1

@@ -48,19 +48,13 @@ __C.reliability_threshold = 0.1
 __C.match_threshold = 0.2
 # Pair Affinity Learning and Scoring
 __C.unmatched_sampling = False  # include all unmatched objects in train batch
-__C.pa_loss = None    # 'bce' / 'balanced_bce' / 'focal' / 'hnm' / 'dist_bce' / 'balanced_dist_bce' / 'focal_dist' / 'hnm_dist' / 'margin_ranking' / 'soft_margin_ranking' / 'logit_bce' / None
-__C.pam_loss = None   # 'triplet' / 'soft' / 'adaptive' / None
 __C.pa_weight = 0.1
 __C.pa_metric = False
-__C.pa_pos_target = 1.0  # label smoothing for bce: soft target for positive
-__C.pa_neg_target = 0.0  # label smoothing for bce: soft target for negative
 __C.pa_margin = 1.0      # margin for margin_ranking mode (gt pairs)
 __C.pam_weight = 0.3
 __C.pam_margin = 1.0
 __C.propagate_margin = 0.3
 __C.pa_alpha_power = 3.0  # power for distance decay in dist_bce mode
-__C.focal_gamma = 2.0        # focusing parameter for focal loss (0 = balanced_bce)
-__C.hnm_neg_ratio = 3        # hard negative mining: neg:pos ratio
 __C.pam = True  # Apply PAM (pair_emb @ pair_emb^T) to attention scores
 __C.oracle_detection = False  # VidHOI: replace detector output with GT bboxes (perfect detection)
 # dataset options

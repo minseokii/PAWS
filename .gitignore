@@ -58,3 +58,4 @@ scripts/_run_gpu*.sh
 
 # ===== Don't ignore important files in subdirs =====
 !.gitkeep
+data

@@ -35,8 +35,6 @@ feat_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_det_ag_class/'
 # Ablation: dist_bce (unbalanced) instead of balanced_dist_bce
 unmatched_sampling : True
 pam : True
-pa_loss : ['dist_bce']
-pam_loss : ['adaptive']
 pa_weight : 1.0
 pa_alpha_power : 3.0
 pa_metric : True

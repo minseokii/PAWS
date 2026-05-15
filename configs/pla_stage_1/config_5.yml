@@ -28,11 +28,7 @@ obj_dim : 2048
 # Pair Affinity Learning and Scoring
 # Balanced BCE only with label smoothing (0.75, 0.25)
 unmatched_sampling : True
-pa_loss : ['bce']
-pam_loss : []
 pa_weight : 0.5
-pa_pos_target : 0.75
-pa_neg_target : 0.25
 pa_metric : True
 
 
