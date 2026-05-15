@@ -5,7 +5,7 @@ from lib.config import conf, cfg_from_file
 import pdb
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--cfg', dest='cfg_file', help='optional config file', default='configs/demo.yml', type=str)
+parser.add_argument('--cfg', dest='cfg_file', help='optional config file', default='configs/pla_stage_2/dsgdetr_paws.yml', type=str)
 args = parser.parse_args()
 if args.cfg_file is not None:
     cfg_from_file(args.cfg_file)

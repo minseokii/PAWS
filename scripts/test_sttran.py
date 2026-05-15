@@ -5,7 +5,7 @@ from lib.config import conf, cfg_from_file
 import pdb
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--cfg', dest='cfg_file', help='optional config file', default='configs/demo.yml', type=str)
+parser.add_argument('--cfg', dest='cfg_file', help='optional config file', default='configs/pla_stage_2/sttran_paws.yml', type=str)
 parser.add_argument('--save_result', type=str, default=None,
                     help='Save per-frame predictions/GT/recall to pkl (e.g., ours_result.pkl)')
 args = parser.parse_args()
