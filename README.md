@@ -44,7 +44,6 @@ PAWS/
 | -- models
 |     | -- vinvl/vinvl_vg_x152c4.pth                           # VinVL detector weights
 |     | -- groundingdino/groundingdino_swint_ogc.pth           # Grounding-DINO checkpoint
-| -- lib/CSA/glove.6B/glove.6B.200d.txt                        # auto-cached as .pt on first run
 | -- third_party/GroundingDINO/                                # git clone IDEA-Research/GroundingDINO here
 ```
 
@@ -92,20 +91,11 @@ cd third_party/GroundingDINO && pip install -e . --no-build-isolation && cd -
 The RAM step augments each VinVL detection with two extra fields — `reliability` (cls-token attention) and `match_score` (subject- / object-token attention) — by running Grounding-DINO over the same AG frames and matching its attention back to VinVL boxes. **Download** the pre-built cache: [link TBD]. To produce it yourself:
 
 ```bash
-# (a) Run Grounding-DINO on AG frames + PLA_det_ag_class to compute
-#     reliability + match_score per VinVL detection (RAM scoring).
 python scripts/extract_gdino_match.py
 #   reads:   data/action-genome/frames/
 #            data/action-genome/PLA_det_ag_class/
 #            data/action-genome/annotations/weak/gt_annotation_thres02_keep1.pkl
-#   writes:  data/action-genome/PLA_gdino/    (same boxes, with reliability + match_score added)
-
-# (b) If the output of (a) is still in VinVL class space, remap to AG.
-#     (When --src_det is already PLA_det_ag_class above, this step is a no-op.)
-python scripts/convert_to_ag_class.py \
-    --src_det  data/action-genome/PLA_gdino \
-    --src_feat data/action-genome/PLA_det_ag_class \
-    --dst      data/action-genome/PLA_gdino_ag_class
+#   writes:  data/action-genome/PLA_gdino_ag_class/    (same dets + reliability + match_score)
 ```
 
 #### 6. Weak-annotation pickles → `data/action-genome/annotations/weak/`
@@ -119,17 +109,9 @@ To regenerate the second one yourself from items 3–6:
 
 ```bash
 python scripts/generate_pseudo_labels.py \
-    --config   configs/pla_stage_1/sttran_ours.yml \
+    --config   configs/pla_stage_1/sttran_paws.yml \
     --det_path data/action-genome/PLA_gdino_ag_class \
     --output   data/action-genome/annotations/weak/gt_pla_gdino_modelfree_05_skip2.pkl
-```
-
-#### 7. GloVe embeddings → `lib/CSA/glove.6B/glove.6B.200d.txt`
-
-```bash
-mkdir -p lib/CSA/glove.6B && cd lib/CSA/glove.6B
-wget https://nlp.stanford.edu/data/glove.6B.zip
-unzip glove.6B.zip glove.6B.200d.txt && cd -
 ```
 
 > `data/` and `models/` are kept out of git. If your data and weights already live elsewhere on disk, you can just symlink: `ln -s /your/path data/action-genome` and `ln -s /your/path-to-weights models`.
@@ -169,8 +151,8 @@ export PYTHONPATH=$(pwd):$(pwd)/third_party:$(pwd)/third_party/scene_graph_bench
 Trains a per-frame object-aware SGG model that emits soft predicate logits used to refine pseudo-labels.
 
 ```bash
-python scripts/train_sttran.py  --cfg configs/pla_stage_1/sttran_ours.yml
-python scripts/train_dsgdetr.py --cfg configs/pla_stage_1/dsgdetr_ours.yml
+python scripts/train_sttran.py  --cfg configs/pla_stage_1/sttran_paws.yml
+python scripts/train_dsgdetr.py --cfg configs/pla_stage_1/dsgdetr_paws.yml
 ```
 
 ### Stage 2 (PAWS student, with PA + PAM)
@@ -178,11 +160,11 @@ python scripts/train_dsgdetr.py --cfg configs/pla_stage_1/dsgdetr_ours.yml
 Pair-affinity head and PAM-aware spatio-temporal transformer are turned on.
 
 ```bash
-python scripts/train_sttran.py  --cfg configs/pla_stage_2/ours.yml
-python scripts/train_dsgdetr.py --cfg configs/pla_stage_2/ours.yml
+python scripts/train_sttran.py  --cfg configs/pla_stage_2/sttran_paws.yml
+python scripts/train_dsgdetr.py --cfg configs/pla_stage_2/dsgdetr_paws.yml
 ```
 
-### Key Stage-2 knobs (`configs/pla_stage_2/ours.yml`)
+### Key Stage-2 knobs (`configs/pla_stage_2/{sttran,dsgdetr}_paws.yml`)
 
 | key | default | meaning |
 |---|---|---|
@@ -199,34 +181,11 @@ python scripts/train_dsgdetr.py --cfg configs/pla_stage_2/ours.yml
 ## Evaluation
 
 ```bash
-python scripts/test_sttran.py  --cfg configs/pla_stage_2/ours.yml          # STTran with PA / PAM
-python scripts/test_dsgdetr.py --cfg configs/pla_stage_2/ours.yml          # DSG-DETR with PA / PAM
+python scripts/test_sttran.py  --cfg configs/pla_stage_2/sttran_paws.yml    # STTran with PA / PAM
+python scripts/test_dsgdetr.py --cfg configs/pla_stage_2/dsgdetr_paws.yml   # DSG-DETR with PA / PAM
 ```
 
 The evaluator reports R@10 / R@20 / R@50 / R@100 under with / semi / no constraint. If `pa_metric: True`, a second block also reports PA-gated re-ranked recalls.
-
-## How the patches work (PyTorch 2.x)
-
-The original `maskrcnn_benchmark` and `fasterRCNN/lib` CUDA extensions were authored against PyTorch 1.x and use APIs (`THC/THC.h`, `THCAtomics.cuh`, `THCudaCheck`, `THCCeilDiv`, `THCudaMalloc`) that were removed in PyTorch 1.11+. PAWS bundles patched copies under `third_party/`:
-
-- `THC/THCAtomics.cuh` → `ATen/cuda/Atomic.cuh`
-- `THC/THCDeviceUtils.cuh` → `ATen/cuda/DeviceUtils.cuh`
-- `THCudaCheck(…)` → `C10_CUDA_CHECK(…)`
-- `THCCeilDiv(a,b)` → inline `((a + b - 1) / b)`
-- `THCudaMalloc / THCudaFree` → `at::empty(…)`-backed buffers (RAII)
-
-These changes are confined to the CUDA / C++ entry-points; no Python or model logic was touched. The full patch is reproducible with the `sed` recipe in `scripts/install.sh`.
-
-## Troubleshooting
-
-| Symptom | Fix |
-|---|---|
-| `THC/THC.h: No such file` | Run `bash scripts/install.sh` again — patches must be re-applied if you replaced `third_party/`. |
-| `ninja: command not found` | `pip install ninja` (faster build; not strictly required). |
-| `CUDA mismatch: 11.7 vs 11.8` (warning) | Harmless if minor version differs. Hard failures require matching `cudatoolkit` and PyTorch CUDA build. |
-| `cannot import name '_C' from 'maskrcnn_benchmark'` | The build copied `_C.*.so` to the wrong place. Re-run `python setup.py build_ext --inplace` inside `third_party/scene_graph_benchmark/`. |
-| `module 'torch' has no attribute '_six'` | Already patched; if you see this, you may be running against an unpatched maskrcnn_benchmark on PYTHONPATH. Make sure `third_party/scene_graph_benchmark` precedes any old copies. |
-| `np.float / np.int deprecated` | Already patched; check that `dataloader/`, `lib/`, and `third_party/` were copied from this repo (not from an upstream clone). |
 
 ## Acknowledgements
 

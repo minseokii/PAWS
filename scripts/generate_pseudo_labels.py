@@ -601,7 +601,7 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default='configs/pla_stage_1/glip_ours.yml')
+    parser.add_argument('--config', type=str, default='configs/pla_stage_1/glip_paws.yml')
     parser.add_argument('--output', type=str,
                         default='/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/annotations/weak/pla_stage2_glip.pkl')
     parser.add_argument('--iou', type=float, default=0.5)

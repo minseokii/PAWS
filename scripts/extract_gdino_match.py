@@ -393,8 +393,8 @@ def main():
 
 
     video_dir = 'data/action-genome/frames'
-    det_dir = 'data/action-genome/PLA_det_ag_class/'    # VinVL detection cache (AG class space)
-    save_dir = 'data/action-genome/PLA_gdino/'           # output: same dets + reliability + match_score
+    det_dir = 'data/action-genome/PLA_det_ag_class/'         # VinVL detection cache (AG class space)
+    save_dir = 'data/action-genome/PLA_gdino_ag_class/'      # output: same dets + reliability + match_score
     video_list = os.listdir(video_dir)
     obj_class_file = 'data/action-genome/annotations/object_classes.txt'
     rel_class_file = 'data/action-genome/annotations/relationship_classes.txt'
