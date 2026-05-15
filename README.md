@@ -2,9 +2,9 @@
 
 PAWS extends the [PLA](https://github.com/zjucsq/PLA) weakly-supervised SGG framework with **three** complementary contributions:
 
-- **RAM** (Reliability + Attention Matching): each VinVL detection is scored against Grounding-DINO's per-token attention to obtain a `reliability` score (cls-token) and a per-detection `match_score` (subject- / object-token). These scores then drive a bidirectional IoU propagation that converts a handful of annotated frames into pseudo-labels covering the entire video.
+- **RAM** (Relation Aware Match): each VinVL detection is scored against Grounding-DINO's per-token attention to obtain a `reliability` score (cls-token) and a per-detection `match_score` (subject- / object-token). These scores then drive a bidirectional IoU propagation that converts a handful of annotated frames into pseudo-labels covering the entire video.
 - **PA** (Pair Affinity learning): distance-aware BCE losses (`balanced_dist_bce`, `dist_bce`, `focal_dist`, `hnm_dist`) on top of the RAM pseudo-labels, teaching the model which subject–object pairs are likely to interact.
-- **PAM** (Pair Affinity Masking): a learned attention bias inside the spatio-temporal transformer that suppresses uninformative pairs at inference.
+- **PAM** (Pair Affinity Modulation): a learned attention bias inside the spatio-temporal transformer that suppresses uninformative pairs at inference.
 
 Both **STTran** and **DSG-DETR** backbones are supported, and the entire pipeline runs in a single modern PyTorch environment.
 

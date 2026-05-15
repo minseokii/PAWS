@@ -1,5 +1,5 @@
 """
-DSG-DETR with PAM (Pair Affinity Masking) integration for TRKT/PLA framework.
+DSG-DETR with PAM (Pair Affinity Modulation) integration for TRKT/PLA framework.
 
 Ported from NL-VSGG/lib/dsg_detr.py with the following modifications:
 - PAM-aware EncoderLayer (batch_first=True)
@@ -58,7 +58,7 @@ class PositionalEncoding(nn.Module):
 
 
 class PAMEncoderLayer(nn.Module):
-    """Transformer Encoder Layer with PAM (Pair Affinity Masking) support.
+    """Transformer Encoder Layer with PAM (Pair Affinity Modulation) support.
 
     batch_first=True convention: inputs/outputs are [B, L, D].
     Manual Q/K/V projection enables pair_emb-based attention modulation.
