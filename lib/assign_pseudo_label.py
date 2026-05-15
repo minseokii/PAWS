@@ -7,7 +7,6 @@ import numpy as np
 import json
 from random import choice
 import sys
-sys.path.append('/SSD1/minseok/WS-DSGG/TRKT/PLA/lib/')
 from lib.draw_rectangles.draw_rectangles import draw_union_boxes
 from scene_graph_benchmark.AttrRCNN import AttrRCNN
 from maskrcnn_benchmark.data.transforms import build_transforms
@@ -23,7 +22,7 @@ import pdb
 import random
 
 
-def load_feature(frame_names, union_box_feature, det_path, feat_path='/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/AG_detection_results_refine', is_train=True, load_feat=True):
+def load_feature(frame_names, union_box_feature, det_path, feat_path='data/action-genome/AG_detection_results_refine', is_train=True, load_feat=True):
     """
     frame_names: a list of name like '001YG.mp4/000093.png'
     """
@@ -112,7 +111,7 @@ def assign_label_to_proposals_by_dict_for_image(img_det, img_feat, is_train, img
     return people_det, people_feat, object_det, object_feat
 
 
-def assign_label_to_proposals_by_dict_for_video(dets, feats, is_train, gt_annotation, dict_path='/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/annotations/weak/', pseudo_way=0, match_mode='ori', conf=None):
+def assign_label_to_proposals_by_dict_for_video(dets, feats, is_train, gt_annotation, dict_path='data/action-genome/annotations/weak/', pseudo_way=0, match_mode='ori', conf=None):
 
     cls_dict = np.load(os.path.join(dict_path, 'ag_to_oi_word_map_synset.npy'), allow_pickle=True).tolist()
     oi_to_ag_cls_dict = np.load(os.path.join(dict_path, 'oi_to_ag_word_map_synset.npy'), allow_pickle=True).tolist()
@@ -840,7 +839,7 @@ def convert_data(is_train, base_feat_list, video_people_det, video_people_feat, 
     '''
     if union_box_feature:
         # for detection union boxes
-        imgs_paths = [os.path.join('/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/frames/', f) for f in frame_names]
+        imgs_paths = [os.path.join('data/action-genome/frames/', f) for f in frame_names]
         cv2_imgs = [cv2.imread(img_file) for img_file in imgs_paths]
         union_boxes = torch.cat((im_idx[:, None],
                                 torch.min(boxes[:, 1:3][pair_idx[:, 0]],

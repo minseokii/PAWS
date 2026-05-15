@@ -402,7 +402,7 @@ def convert_to_pkl_format(propagated_detections, frame_list, weak_anno, obj_clas
 
 def generate_pseudo_labels(
     config_path='configs/config_3.yml',
-    output_path='/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/annotations/weak/gt_annotation_gdino_modelfree_05_skip.pkl',
+    output_path='data/action-genome/annotations/weak/gt_annotation_gdino_modelfree_05_skip.pkl',
     iou_threshold=0.5,
     gpu_id=0,
     label_num=1,
@@ -603,12 +603,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='configs/pla_stage_1/sttran_paws.yml')
     parser.add_argument('--output', type=str,
-                        default='/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/annotations/weak/pla_stage2_glip.pkl')
+                        default='data/action-genome/annotations/weak/pla_stage2_glip.pkl')
     parser.add_argument('--iou', type=float, default=0.5)
     parser.add_argument('--gpu', type=int, default=1)
     parser.add_argument('--label_num', type=int, default=1, help='Number of GT frames per video')
     parser.add_argument('--det_path', type=str,
-                        default='/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_det_ag_class',
+                        default='data/action-genome/PLA_det_ag_class',
                         help='Path to detection results (use full detection for all frames)')
     parser.add_argument('--no_skip', action='store_true',
                         help='Stop propagation when matching fails (default: False, i.e. continue propagation)')

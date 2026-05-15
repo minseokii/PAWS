@@ -137,7 +137,7 @@ def main():
     parser.add_argument('--dst', type=str, required=True,
                         help='Destination folder')
     parser.add_argument('--mapping_path', type=str,
-                        default='/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/annotations/weak/oi_to_ag_word_map_synset.npy',
+                        default='data/action-genome/annotations/weak/oi_to_ag_word_map_synset.npy',
                         help='Path to OI→AG class mapping')
     args = parser.parse_args()
 

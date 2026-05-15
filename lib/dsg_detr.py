@@ -232,7 +232,7 @@ class ObjectClassifier(nn.Module):
         self.RCNN_roi_align = ROIAlign((7, 7), 1.0/16.0, 0)
 
         embed_vecs = obj_edge_vectors(obj_classes[1:], wv_type='glove.6B',
-                                       wv_dir='/SSD1/minseok/WS-DSGG/TRKT/PLA/lib/CSA/', wv_dim=200)
+                                       wv_dir='lib/CSA/', wv_dim=200)
         self.obj_embed = nn.Embedding(len(obj_classes)-1, 200)
         self.obj_embed.weight.data = embed_vecs.clone()
 
@@ -499,7 +499,7 @@ class DSGDETR(nn.Module):
         self.vr_fc = nn.Linear(256 * 7 * 7, 512)
 
         embed_vecs = obj_edge_vectors(obj_classes, wv_type='glove.6B',
-                                       wv_dir='/SSD1/minseok/WS-DSGG/TRKT/PLA/lib/CSA/', wv_dim=200)
+                                       wv_dir='lib/CSA/', wv_dim=200)
         self.obj_embed = nn.Embedding(len(obj_classes), 200)
         self.obj_embed.weight.data = embed_vecs.clone()
 

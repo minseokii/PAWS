@@ -12,7 +12,7 @@ from six.moves.urllib.request import urlretrieve
 from tqdm import tqdm
 import sys
 
-def obj_edge_vectors(names, wv_type='glove.6B', wv_dir='/home/wangguan/CSA', wv_dim=300):
+def obj_edge_vectors(names, wv_type='glove.6B', wv_dir='lib/CSA', wv_dim=300):
     wv_dict, wv_arr, wv_size = load_word_vectors(wv_dir, wv_type, wv_dim)
 
     vectors = torch.Tensor(len(names), wv_dim)

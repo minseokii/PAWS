@@ -98,7 +98,7 @@ class detector(nn.Module):
             pair = torch.tensor(pair).cuda(0)
             im_idx = torch.tensor(im_idx, dtype=torch.float).cuda(0)
 
-            imgs_paths = [os.path.join('/home/wangguan/PLA/data/action-genome/frames', f) for f in frame_names]
+            imgs_paths = [os.path.join('data/action-genome/frames', f) for f in frame_names]
             cv2_imgs = [cv2.imread(img_file) for img_file in imgs_paths]
             FINAL_BASE_FEATURES = [extract_base_feature_one_img(faset_rcnn_model, transforms, img) for img in cv2_imgs]
 

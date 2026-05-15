@@ -35,7 +35,7 @@ class ObjectClassifier(nn.Module):
         #roi align
         self.RCNN_roi_align = ROIAlign((7, 7), 1.0/16.0, 0)
 
-        embed_vecs = obj_edge_vectors(obj_classes[1:], wv_type='glove.6B', wv_dir='/SSD1/minseok/WS-DSGG/TRKT/PLA/lib/CSA/', wv_dim=200)
+        embed_vecs = obj_edge_vectors(obj_classes[1:], wv_type='glove.6B', wv_dir='lib/CSA/', wv_dim=200)
         self.obj_embed = nn.Embedding(len(obj_classes)-1, 200)
         self.obj_embed.weight.data = embed_vecs.clone()
 
@@ -324,8 +324,8 @@ class STTran(nn.Module):
         self.obj_fc = nn.Linear(obj_dim, 512)
         self.vr_fc = nn.Linear(256*7*7, 512)
 
-        # embed_vecs = obj_edge_vectors(obj_classes, wv_type='glove.6B', wv_dir='/home/csq/STTran/Dokumente/neural-motifs-master/data', wv_dim=200)
-        embed_vecs = obj_edge_vectors(obj_classes, wv_type='glove.6B', wv_dir='/SSD1/minseok/WS-DSGG/TRKT/PLA/lib/CSA/', wv_dim=200)
+        # embed_vecs = obj_edge_vectors(obj_classes, wv_type='glove.6B', wv_dir='lib/CSA', wv_dim=200)
+        embed_vecs = obj_edge_vectors(obj_classes, wv_type='glove.6B', wv_dir='lib/CSA/', wv_dim=200)
         self.obj_embed = nn.Embedding(len(obj_classes), 200)
         self.obj_embed.weight.data = embed_vecs.clone()
 
@@ -365,7 +365,7 @@ class STTran(nn.Module):
         )
         self.r_compress = nn.Linear(128,1)
         '''
-        trans_matrix = np.load('/home/csq/project/AG/datasets/ActionGenome/dataset/ag/annotations/same_relation_martix.npz')
+        trans_matrix = np.load('data/action-genome/annotations/same_relation_martix.npz')
 
         self.a_trans_matrix = torch.nn.Parameter(torch.tensor(trans_matrix['att'], dtype=torch.float32, requires_grad=True))
         self.s_trans_matrix = torch.nn.Parameter(torch.tensor(trans_matrix['spa'], dtype=torch.float32, requires_grad=True))

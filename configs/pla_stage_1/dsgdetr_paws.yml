@@ -21,8 +21,8 @@ start_eval_epoch: 0
 match : 'gdinomatch'
 reliability_threshold: 0.1
 match_threshold: 0.2
-det_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/PLA_gdino_ag_class/'
-feat_path : '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/AG_detection_results_ag_class_v2/'
+det_path : 'data/action-genome/PLA_gdino_ag_class/'
+feat_path : 'data/action-genome/AG_detection_results_ag_class_v2/'
 obj_dim : 2048
 
 # Pair Affinity Learning and Scoring
@@ -36,7 +36,7 @@ pam_weight : 0.1
 # Base directory for saving models (timestamp subdirectory auto-generated)
 save_path: 'models/pla/'
 model_path: 'models/pla/0214_1616_dsgdetr_gdinomatch_pabalanced_bce_pamtriplet_unmatched/best_model.tar'
-data_path: '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/'
+data_path: 'data/action-genome/'
 datasize: 'large'
 ckpt: None
-ws_object_bbox_path: '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/annotations/weak/gt_annotation_thres02_keep1.pkl'
+ws_object_bbox_path: 'data/action-genome/annotations/weak/gt_annotation_thres02_keep1.pkl'

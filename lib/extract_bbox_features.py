@@ -240,7 +240,7 @@ def extract_feature_given_bbox_video(model, transforms, cv2_img, bboxes):
 
 def prepare_func():
     # 写死args
-    config_file = "/SSD1/minseok/WS-DSGG/TRKT/PLA/lib/sgg_configs/vgattr/vinvl_x152c4.yaml"
+    config_file = "configs/detector/vinvl_x152c4.yaml"
     opts = ["MODEL.WEIGHT", "models/vinvl/vinvl_vg_x152c4.pth",
             "MODEL.ROI_HEADS.NMS_FILTER", "1",
             "MODEL.ROI_HEADS.SCORE_THRESH", "0.2",
@@ -273,11 +273,11 @@ if __name__ == "__main__":
     
     model, transforms = prepare_func()
 
-    """img_file = "/home/csq/project/AG/datasets/ActionGenome/dataset/ag/frames" 
+    """img_file = "data/action-genome/frames" 
     cv2_img = cv2.imread(img_file)
 
-    npy_path = '/home/csq/project/scene_graph_benchmark/output/debug/test.npy'
-    out_path = '/home/csq/project/scene_graph_benchmark/output/debug/test2.npy'
+    npy_path = '.cache/test.npy'
+    out_path = '.cache/test2.npy'
     test_file = np.load(npy_path, allow_pickle=True)
     bboxes = torch.Tensor([b['rect'] for b in test_file])
     print(bboxes.shape)
@@ -285,8 +285,8 @@ if __name__ == "__main__":
     # np.save(out_path, bbox_features)
     print(bbox_features.shape)"""
 
-    data_root = '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/frames'
-    save_root = '/SSD1/minseok/WS-DSGG/TRKT/data/action-genome/AG_detection_results'
+    data_root = 'data/action-genome/frames'
+    save_root = 'data/action-genome/AG_detection_results'
     for vid in tqdm(sorted(os.listdir(data_root))):
         vid_folder = os.path.join(data_root, vid)
         save_vid_path = os.path.join(save_root, vid)
