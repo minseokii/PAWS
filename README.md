@@ -3,7 +3,7 @@
 PAWS extends the [PLA](https://github.com/zjucsq/PLA) weakly-supervised SGG framework with **three** complementary contributions:
 
 - **RAM** (Relation Aware Match): each VinVL detection is scored against Grounding-DINO's per-token attention to obtain a `reliability` score (cls-token) and a per-detection `match_score` (subject- / object-token). These scores then drive a bidirectional IoU propagation that converts a handful of annotated frames into pseudo-labels covering the entire video.
-- **PA** (Pair Affinity learning): distance-aware BCE losses (`balanced_dist_bce`, `dist_bce`, `focal_dist`, `hnm_dist`) on top of the RAM pseudo-labels, teaching the model which subject–object pairs are likely to interact.
+- **PA** (Pair Affinity learning): distance-aware BCE losses (`balanced_dist_bce`) on top of the RAM pseudo-labels, teaching the model which subject–object pairs are likely to interact.
 - **PAM** (Pair Affinity Modulation): a learned attention bias inside the spatio-temporal transformer that suppresses uninformative pairs at inference.
 
 Both **STTran** and **DSG-DETR** backbones are supported, and the entire pipeline runs in a single modern PyTorch environment.
@@ -163,20 +163,6 @@ Pair-affinity head and PAM-aware spatio-temporal transformer are turned on.
 python scripts/train_sttran.py  --cfg configs/pla_stage_2/sttran_paws.yml
 python scripts/train_dsgdetr.py --cfg configs/pla_stage_2/dsgdetr_paws.yml
 ```
-
-### Key Stage-2 knobs (`configs/pla_stage_2/{sttran,dsgdetr}_paws.yml`)
-
-| key | default | meaning |
-|---|---|---|
-| `pa_loss` | `['balanced_dist_bce']` | one of `dist_bce`, `balanced_dist_bce`, `focal_dist`, `hnm_dist`, `[]` (off) |
-| `pam_loss` | `['adaptive']` | PAM training target: `adaptive`, `triplet`, `soft`, `[]` (off) |
-| `pam` | `True` | apply PAM attention bias inside the transformer at inference |
-| `pa_metric` | `True` | use the PA score to re-rank predicates at eval |
-| `pa_weight` | `1.0` | weight for PA loss |
-| `pam_weight` | `0.1` | weight for PAM loss |
-| `pa_alpha_power` | `3.0` | distance-decay exponent for distance-weighted PA |
-| `unmatched_sampling` | `True` | include unmatched proposals as negative pairs in PA training |
-| `match` | `exact` | how detected boxes are matched to pseudo-labels |
 
 ## Evaluation
 
